@@ -14,6 +14,9 @@ performance of MBB networks for popular end-user services (e.g., YouTube, Facebo
 centric perspective. Such tools and models provide a multi-layer monitoring perspective, measuring QoE-
 relevant features at the network and application layers, and forecasting end-user experience (e.g., MOS scores).
 
+# YoMo-Plugin
+The newest version of the YoMo-Plugin can be found in the following repository: https://github.com/lsinfo3/yomo-browser-plugin
+
 # Local Testing
 Run simply the following command and get the results into a selected folder:
 
