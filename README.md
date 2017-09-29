@@ -14,12 +14,20 @@ performance of MBB networks for popular end-user services (e.g., YouTube, Facebo
 centric perspective. Such tools and models provide a multi-layer monitoring perspective, measuring QoE-
 relevant features at the network and application layers, and forecasting end-user experience (e.g., MOS scores).
 
-# YoMo-Plugin
-The newest version of the YoMo-Plugin can be found in the following repository: https://github.com/lsinfo3/yomo-browser-plugin
-
 # Local Testing
 Run simply the following command and get the results into a selected folder:
 
 ```
-docker run -v <Path to folder>:/monroe/results yomo_docker
+docker run -p 5900:5900 -v <Path to folder>:/monroe/results yomo_docker
 ```
+
+or use a config file in addition:
+
+```
+docker run --cap-add=NET_ADMIN --env LOCAL=1 -v <Path to config file>:/monroe/config -v <Path to fresult older>:/monroe/results yomo_docker
+```
+
+
+
+
+
