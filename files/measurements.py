@@ -34,64 +34,58 @@ EXPCONFIG = {
 
 def runVideo():
 
-	## Start tShark
-	#callTshark = "tshark -n -i eth0 -E separator=, -T fields -e frame.time_epoch -e tcp.len -e frame.len -e ip.src -e ip.dst -e tcp.srcport -e tcp.dstport -e tcp.analysis.ack_rtt -e tcp.analysis.lost_segment -e tcp.analysis.out_of_order -e tcp.analysis.fast_retransmission -e tcp.analysis.duplicate_ack -e dns -Y 'tcp or dns'  >> /monroe/results/test_tshark_.txt  2> /monroe/results/test_tshark_error.txt &"
-	#call(callTshark, shell=True)
-
-	#start display	
+	# start display	
 	display = Display(visible=0, size=(1920, 1080)) #display size has to be cutomized 1920, 1080
 	print time.time(), ' start display'
 	display.start()
 	time.sleep(10)
 
-	bufferFactor = 2
+	# get url
 	url = 'https://www.youtube.com/watch?v=' + EXPCONFIG['ytId']
-	#url = 'https://www.youtube.com/watch?v=kmjx-TEBw1o'
 
+	# set file prefix
 	ts = time.time()
 	st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
 	prefix = "YT_" + EXPCONFIG['ytId'] + '_' + st
 
+	# define firefox settings
 	caps = DesiredCapabilities().FIREFOX
 	#caps["pageLoadStrategy"] = "normal"  #  complete
 	caps["pageLoadStrategy"] = "none"
 
-	#start video
+
 	try:
 
+		# start firefox
 		print time.time(), ' start firefox'
 		browser = webdriver.Firefox(capabilities=caps)
 		time.sleep(10)
 
+		# read in js
 		jsFile = open('/opt/monroe/pluginAsJS.js', 'r')
 		js = jsFile.read()
 		jsFile.close
 
+		# open webpage
 		print time.time(), ' start video ', EXPCONFIG['ytId']
 		browser.get(url)
 		browser.get_screenshot_as_file('/monroe/results/screenshot0.png')
-		browser.execute_script(js)
-		#element = browser.find_element_by_id('toggle')
-		#element.click()
-	
-		duration = EXPCONFIG['duration']
-		browser.get_screenshot_as_file('/monroe/results/screenshot1.png')
-		time.sleep(duration/2)
-		browser.get_screenshot_as_file('/monroe/results/screenshot2.png')
-		time.sleep(duration/2)
-		browser.get_screenshot_as_file('/monroe/results/screenshot3.png')
-		
-		print "video playback ended"
 
+		# inject js
+		browser.execute_script(js)
+		duration = EXPCONFIG['duration']
+		time.sleep(duration)
+		
+		# get infos from js and write to file
+		print "video playback ended"
 		out = browser.execute_script('return document.getElementById("outC").innerHTML;')
 		outE = browser.execute_script('return document.getElementById("outE").innerHTML;')
-
 		with open('/monroe/results/' + prefix + '_buffer.txt', 'w') as f:
 			f.write(out)
-
 		with open('/monroe/results/' + prefix + '_events.txt', 'w') as f:
 			f.write(outE.encode("UTF-8"))
 			
+		# close browser
 		browser.close()
 		print time.time(), ' finished firefox'
 
@@ -102,29 +96,19 @@ def runVideo():
 		ts = time.time()
 		st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
 		print st
-		
+	
+	# stop display
 	display.stop()
 	print time.time(), 'display stopped'
 	
+	# calculate some infos
 	bitrates = EXPCONFIG['bitrates'].split(",")
-
 	with open('/monroe/results/' + prefix + '_outStream.txt', 'w') as f:
 			f.write(getOutput(prefix, bitrates).encode("UTF-8"))
 
-	### Kill Tshark
-	#sys.exit(0)
-
-	
-
-
 	return;
 
-def kill_proc_tree(pid, including_parent=False):    
-    parent = psutil.Process(pid)
-    for child in parent.get_children(recursive=True):
-        child.kill()
-    if including_parent:
-        parent.kill()
+
 
 # Calculate average, max, min, 25-50-75-90 quantiles of the following: bitrate [KB], buffer [s], number of stalls, duration of stalls
 def getOutput(prefix, bitrates):
