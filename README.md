@@ -18,16 +18,30 @@ relevant features at the network and application layers, and forecasting end-use
 Run simply the following command and get the results into a selected folder:
 
 ```
-docker run -p 5900:5900 -v <Path to folder>:/monroe/results yomo_docker
+docker run --cap-add=NET_ADMIN --env LOCAL=1 -v <Path to result folder>:/monroe/results yomo_docker
 ```
 
-or use a config file in addition:
+or use a config file in addition to specify YouTube ID, duration and bitrates for different quality levels:
 
 ```
-docker run --cap-add=NET_ADMIN --env LOCAL=1 -v <Path to config file>:/monroe/config -v <Path to fresult older>:/monroe/results yomo_docker
+docker run --cap-add=NET_ADMIN --env LOCAL=1 -v <Path to config file>:/monroe/config -v <Path to result folder>:/monroe/results yomo_docker
 ```
 
-
+# Output
+The container will export three different log files:
+  1. Information about the playout buffer (in intervals of approx. 1s) in the following format:
+     ```
+     timestamp#video playback time#buffered playback time#available playback time\n
+     ```
+  2. Information about the video player (playback events, video information) in the following format:
+     ```
+     timestamp#information\n
+     ```
+  3. Statistics about bitrate, buffer, and stallings
+     ```
+     avg, max, min, 25-50-75-90 quantiles of: bitrate [KB], buffer [s], number of stalls (only one value), duration of stalls
+     ```
+  4. Network traffic information during the video playback using tshark
 
 
 
